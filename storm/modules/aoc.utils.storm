@@ -1,0 +1,8 @@
+function getInputDataFromURL(url){
+    $resp = $lib.inet.http.get($url)
+    return($resp.body.decode().split("\n"))
+}
+
+function getInputDataFromFile(sha256){
+    fini {return($lib.axon.readlines($sha256))}
+}

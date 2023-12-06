@@ -1,0 +1,50 @@
+name: aoc
+version: 0.0.3
+desc: |
+  A Rapid Powerup for Advent of Code.
+
+synapse_minversion: [2, 152, 0]
+
+genopts:
+  dotstorm: true
+
+author:
+  url: https://example.com
+  name: verri3r
+
+
+modules:
+  - name: aoc.utils
+  - name: aoc.day1.a
+  - name: aoc.day1.b
+
+commands:
+  - name: aoc.run
+    descr: |
+      Run AOC module
+
+    cmdargs:
+      - - --debug
+        - type: bool
+          default: false
+          action: store_true
+          help: Enable debug output.
+      - - --day
+        - type: str
+          required: true
+          help: The days AOC problem solution to load and run.
+      - - --part
+        - type: str
+          required: true
+          help: The part of the day's module to run (1 or 2).
+      - - --use-test-data
+        - type: bool
+          default: false
+          action: store_true
+          help: Use AOC test input provided.
+      - - --from-file
+        - type: str
+          help: SHA256 of the file in Axon for input data.
+
+
+

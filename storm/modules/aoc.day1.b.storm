@@ -1,0 +1,67 @@
+init {
+    $total = (0)
+    $testInput = (two1nine,eightwothree,abcone2threexyz,xtwone3four,4nineeightseven2,zoneight234,7pqrstsixteen)
+    $utils = $lib.import(aoc.utils)
+}
+
+function getFirstDigit(input){
+    $text = $input.strip()
+    $fd = $lib.regex.search("(\d{1})", $text)
+    return($fd.0)
+}
+
+function getLastDigit(input){
+    $text = $input.strip().reverse()
+    $ld = $lib.regex.search("(\d{1})", $text)
+    return($ld.0)
+}
+
+function replaceVal(text){
+    $digitMap = ({
+        "one": "1",
+        "two": "2",
+        "three": "3",
+        "four": "4",
+        "five": "5",
+        "six": "6",
+        "seven": "7",
+        "eight": "8",
+        "nine": "9"
+    })
+    $temp = $text
+    for ($k,$v) in $digitMap {
+        $val = $lib.str.concat($k,$v,$k.slice(-1))
+        $temp = $lib.regex.replace($k,$val,$temp)
+    }
+    fini {return($temp)}
+}
+
+function solve(test=$lib.false, url=$lib.null, sha256=$lib.null){
+    if $test {
+        for $i in $testInput {
+            $s = $replaceVal($i)
+            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))
+            $val = $lib.cast(int, $calib)
+            $total = ($total + $val)
+        }
+    }
+    if $url {
+        for $i in $utils.getInputDataFromURL($url) {
+            $s = $replaceVal($i)
+            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))
+            $val = $lib.cast(int, $calib)
+            $total = ($total + $val)
+        }
+    }
+
+    if $sha256 {
+        for $i in $utils.getInputDataFromFile($sha256) {
+            $s = $replaceVal($i)
+            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))
+            $val = $lib.cast(int, $calib)
+            $total = ($total + $val)
+        }
+    }
+
+    fini {$lib.print(`solution: {$total}`)}
+}
