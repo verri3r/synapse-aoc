@@ -1,0 +1,81 @@
+{
+  "author": {
+    "name": "verri3r",
+    "url": "https://example.com"
+  },
+  "build": {
+    "time": 1701835598738
+  },
+  "commands": [
+    {
+      "cmdargs": [
+        [
+          "--debug",
+          {
+            "action": "store_true",
+            "default": false,
+            "help": "Enable debug output.",
+            "type": "bool"
+          }
+        ],
+        [
+          "--day",
+          {
+            "help": "The days AOC problem solution to load and run.",
+            "required": true,
+            "type": "str"
+          }
+        ],
+        [
+          "--part",
+          {
+            "help": "The part of the day's module to run (1 or 2).",
+            "required": true,
+            "type": "str"
+          }
+        ],
+        [
+          "--use-test-data",
+          {
+            "action": "store_true",
+            "default": false,
+            "help": "Use AOC test input provided.",
+            "type": "bool"
+          }
+        ],
+        [
+          "--from-file",
+          {
+            "help": "SHA256 of the file in Axon for input data.",
+            "type": "str"
+          }
+        ]
+      ],
+      "descr": "Run AOC module\n",
+      "name": "aoc.run",
+      "storm": "init {\n    if $cmdopts.debug { $lib.debug = $lib.true }\n    $mod = `aoc.day{$cmdopts.day}.{$cmdopts.part}`\n}\n\ntry {\n    $runner = $lib.import($mod)\n\n    if $cmdopts.use_test_data {\n        $useTestData=$lib.true\n        $runner.solve(test=$useTestData)\n    }\n\n    if $cmdopts.from_file {\n        $sha256 = $cmdopts.from_file\n        $runner.solve(test=$useTestData, sha256=$sha256)\n    }\n\n} catch * as err {\n    $lib.warn(`{$err}`)\n    $lib.warn(`No solution runner named {$mod}`)\n}\n"
+    }
+  ],
+  "desc": "A Rapid Powerup for Advent of Code.\n",
+  "modules": [
+    {
+      "name": "aoc.utils",
+      "storm": "function getInputDataFromURL(url){\n    $resp = $lib.inet.http.get($url)\n    return($resp.body.decode().split(\"\\n\"))\n}\n\nfunction getInputDataFromFile(sha256){\n    fini {return($lib.axon.readlines($sha256))}\n}\n"
+    },
+    {
+      "name": "aoc.day1.a",
+      "storm": "init {\n    $total = (0)\n    $testInput = (\n        1abc2,\n        pqr3stu8vwx,\n        a1b2c3d4e5f,\n        treb7uchet\n    )\n    $utils = $lib.import(aoc.utils)\n}\n\nfunction getFirstDigit(input){\n    $text = $input.strip()\n    $fd = $lib.regex.search(\"(\\d{1})\", $text)\n    return($fd.0)\n}\n\nfunction getLastDigit(input){\n    $text = $input.strip().reverse()\n    $ld = $lib.regex.search(\"(\\d{1})\", $text)\n    return($ld.0)\n}\nfunction solve(test=$lib.false, sha256=\"\"){\n    if $test {\n        for $i in $testInput {\n            $calib = $lib.str.concat($getFirstDigit($i), $getLastDigit($i))\n            $val = $lib.cast(int, $calib)\n            $total = ($total + $val)\n        }\n    }\n    if $sha256 {\n        for $i in $utils.getInputDataFromFile($sha256) {\n            $calib = $lib.str.concat($getFirstDigit($i), $getLastDigit($i))\n            $val = $lib.cast(int, $calib)\n            $total = ($total + $val)\n        }\n    }\n\n    fini {$lib.print(`solution: {$total}`)}\n}\n\n"
+    },
+    {
+      "name": "aoc.day1.b",
+      "storm": "init {\n    $total = (0)\n    $testInput = (two1nine,eightwothree,abcone2threexyz,xtwone3four,4nineeightseven2,zoneight234,7pqrstsixteen)\n    $utils = $lib.import(aoc.utils)\n}\n\nfunction getFirstDigit(input){\n    $text = $input.strip()\n    $fd = $lib.regex.search(\"(\\d{1})\", $text)\n    return($fd.0)\n}\n\nfunction getLastDigit(input){\n    $text = $input.strip().reverse()\n    $ld = $lib.regex.search(\"(\\d{1})\", $text)\n    return($ld.0)\n}\n\nfunction replaceVal(text){\n    $digitMap = ({\n        \"one\": \"1\",\n        \"two\": \"2\",\n        \"three\": \"3\",\n        \"four\": \"4\",\n        \"five\": \"5\",\n        \"six\": \"6\",\n        \"seven\": \"7\",\n        \"eight\": \"8\",\n        \"nine\": \"9\"\n    })\n    $temp = $text\n    for ($k,$v) in $digitMap {\n        $val = $lib.str.concat($k,$v,$k.slice(-1))\n        $temp = $lib.regex.replace($k,$val,$temp)\n    }\n    fini {return($temp)}\n}\n\nfunction solve(test=$lib.false, url=$lib.null, sha256=$lib.null){\n    if $test {\n        for $i in $testInput {\n            $s = $replaceVal($i)\n            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))\n            $val = $lib.cast(int, $calib)\n            $total = ($total + $val)\n        }\n    }\n    if $url {\n        for $i in $utils.getInputDataFromURL($url) {\n            $s = $replaceVal($i)\n            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))\n            $val = $lib.cast(int, $calib)\n            $total = ($total + $val)\n        }\n    }\n\n    if $sha256 {\n        for $i in $utils.getInputDataFromFile($sha256) {\n            $s = $replaceVal($i)\n            $calib = $lib.str.concat($getFirstDigit($s), $getLastDigit($s))\n            $val = $lib.cast(int, $calib)\n            $total = ($total + $val)\n        }\n    }\n\n    fini {$lib.print(`solution: {$total}`)}\n}\n"
+    }
+  ],
+  "name": "aoc",
+  "synapse_minversion": [
+    2,
+    152,
+    0
+  ],
+  "version": "0.0.3"
+}

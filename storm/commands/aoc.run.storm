@@ -1,14 +1,21 @@
 init {
     if $cmdopts.debug { $lib.debug = $lib.true }
     $mod = `aoc.day{$cmdopts.day}.{$cmdopts.part}`
-    $useTestData = $cmdopts.use_test_data
 }
 
 try {
     $runner = $lib.import($mod)
-    if $cmdopts.from_file { $sha256 = $cmdopts.from_file
+
+    if $cmdopts.use_test_data {
+        $useTestData=$lib.true
+        $runner.solve(test=$useTestData)
+    }
+
+    if $cmdopts.from_file {
+        $sha256 = $cmdopts.from_file
         $runner.solve(test=$useTestData, sha256=$sha256)
     }
+
 } catch * as err {
     $lib.warn(`{$err}`)
     $lib.warn(`No solution runner named {$mod}`)
